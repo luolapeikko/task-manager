@@ -1,6 +1,6 @@
 import * as EventEmitter from 'events';
 import TypedEmitter from 'typed-emitter';
-import {AnyTaskStep, TaskStepAsJson, TaskStepToJson} from './taskStep';
+import {AnyTaskStep, TaskStepAsJson, TaskStepStatus, TaskStepToJson} from './taskStep';
 import {v4 as uuidV4} from 'uuid';
 import {getError, TaskAggregateError, TaskDateError, TaskError} from './error';
 import {AnyTaskStepGroup, TaskStepGroup} from './taskStepGroup';
@@ -53,12 +53,12 @@ export abstract class Task<T extends string, TS extends AnyTaskStep, TSJ = TaskS
 	}
 	public async start(): Promise<void> {
 		this.buildStepList()
-			.filter((step) => step.status === 'init')
-			.forEach((step) => (step.status = 'pending'));
+			.filter((step) => step.status === TaskStepStatus.init)
+			.forEach((step) => (step.status = TaskStepStatus.pending));
 		const errorList: TaskDateError[] = [];
 		for (const step of this.buildStepList().filter((cs) => {
 			const status = cs.status;
-			return status === 'pending' || status === 'running';
+			return status === TaskStepStatus.pending || status === TaskStepStatus.running;
 		})) {
 			try {
 				await step.action();
@@ -74,13 +74,14 @@ export abstract class Task<T extends string, TS extends AnyTaskStep, TSJ = TaskS
 		}
 	}
 	public async runNext(): Promise<{step: AnyTaskStep; data: unknown} | undefined> {
-		const step = this.buildStepList().find((s) => s.status === 'init');
+		const step = this.buildStepList().find((s) => s.status === TaskStepStatus.init);
 		if (!step) {
 			return;
 		}
-		step.status = 'pending';
+		step.status = TaskStepStatus.pending
 		return {step, data: await step.action()};
 	}
+	
 	public async rollback({force}: {force?: boolean} = {force: false}): Promise<void> {
 		if (!force) {
 			const supportRollback = this.buildStepList().reduce((acc, step) => acc || step.getOptions()?.supportRollback || false, false);
