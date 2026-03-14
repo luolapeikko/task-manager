@@ -1,5 +1,5 @@
 import {Task} from '../../src/task';
-import {InitialTaskStepProps, TaskStep} from '../../src/taskStep';
+import {TaskStep} from '../../src/taskStep';
 
 export class TaskStep1 extends TaskStep<'step1', {value: string; roll: number}, {data: string}> {
 	public getKey(): 'step1' {
@@ -33,8 +33,4 @@ export class TaskStep1 extends TaskStep<'step1', {value: string; roll: number}, 
 	}
 }
 
-export class Task1 extends Task<'task1', TaskStep1> {
-	constructor(props: InitialTaskStepProps<string, any>) {
-		super(props);
-	}
-}
+export class Task1 extends Task<'task1', TaskStep1> {}

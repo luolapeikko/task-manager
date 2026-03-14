@@ -1,4 +1,4 @@
-import {AnyTaskStep, TaskStepToJson} from './taskStep';
+import type {AnyTaskStep, TaskStepToJson} from './taskStep';
 
 interface InitialTaskGroupProps<TS = AnyTaskStep> {
 	steps: TS[];
@@ -20,7 +20,7 @@ export interface TaskStepGroupPropsJson<TSJ = TaskStepToJson<string, any>[]> {
 
 export class TaskStepGroup<TS extends AnyTaskStep, TSJ = TaskStepGroupAsJson<TS>> {
 	public readonly props: TaskStepGroupProps<TS>;
-	constructor(props: InitialTaskGroupProps<TS>) {
+	public constructor(props: InitialTaskGroupProps<TS>) {
 		this.props = {...props, type: 'TaskStepGroup'};
 	}
 	public toJSON(): TaskStepGroupPropsJson<TSJ> {

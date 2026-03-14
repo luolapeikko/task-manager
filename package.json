@@ -4,23 +4,10 @@
   "description": "Task Manager",
   "main": "dist/index.js",
   "scripts": {
-    "test": "mocha"
-  },
-  "mocha": {
-    "exit": true,
-    "extension": [
-      "ts",
-      "js"
-    ],
-    "recursive": true,
-    "require": [
-      "ts-node/register",
-      "source-map-support/register"
-    ],
-    "reporters": [
-      "spec",
-      "mocha-junit-reporter"
-    ]
+    "test": "vitest test --run --no-isolate --coverage",
+    "coverage": "vitest test --run --no-isolate --reporter=dot --coverage --coverage.reporter=lcov",
+    "lint": "biome check --reporter=summary",
+    "validate": "tsc --noEmit --project tsconfig.test.json"
   },
   "engines": {
     "node": ">=16.0.0"
@@ -40,21 +27,16 @@
   },
   "homepage": "https://github.com/AvanioOy/task-manager#readme",
   "devDependencies": {
-    "@types/chai": "^4.3.1",
-    "@types/mocha": "^9.1.1",
-    "@types/node": "^17.0.33",
-    "@types/sinon": "^10.0.11",
-    "@types/uuid": "^8.3.4",
-    "chai": "^4.3.6",
-    "eslint": "^8.15.0",
-    "mocha": "^10.0.0",
-    "prettier": "^2.6.2",
-    "sinon": "^14.0.0",
-    "ts-node": "^10.7.0",
-    "typed-emitter": "^1.4.0",
-    "typescript": "^4.6.4"
+    "@biomejs/biome": "^2.4.7",
+    "@tsconfig/node24": "^24.0.4",
+    "@types/node": "^24.12.0",
+    "@vitest/coverage-v8": "^4.1.0",
+    "c8": "^11.0.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.0"
   },
   "dependencies": {
-    "uuid": "^8.3.2"
-  }
+    "uuid": "^13.0.0"
+  },
+  "packageManager": "pnpm@10.32.1+sha512.a706938f0e89ac1456b6563eab4edf1d1faf3368d1191fc5c59790e96dc918e4456ab2e67d613de1043d2e8c81f87303e6b40d4ffeca9df15ef1ad567348f2be"
 }

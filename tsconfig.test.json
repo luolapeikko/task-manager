@@ -1,7 +1,9 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "module": "commonjs"
+    "rootDir": ".",
+    "types": ["node"]
   },
-  "importHelpers": false
+  "include": ["src", "test", "vite.config.mts"],
+  "exclude": ["dist/*", "node_modules/*"]
 }

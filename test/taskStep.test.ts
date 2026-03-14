@@ -1,6 +1,6 @@
 process.env.NODE_ENV = 'test';
-import {expect} from 'chai';
-import 'mocha';
+
+import {describe, expect, it} from 'vitest';
 import {TaskStep1} from './task/task1';
 
 describe('task step', () => {

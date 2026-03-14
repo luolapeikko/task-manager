@@ -1,5 +1,5 @@
 export class TaskStepError extends Error {
-	constructor(message: string) {
+	public constructor(message: string) {
 		super(message);
 		this.name = 'TaskStepError';
 		Error.captureStackTrace(this, this.constructor);
@@ -7,7 +7,7 @@ export class TaskStepError extends Error {
 }
 
 export class TaskError extends Error {
-	constructor(message: string) {
+	public constructor(message: string) {
 		super(message);
 		this.name = 'TaskError';
 		Error.captureStackTrace(this, this.constructor);
@@ -20,7 +20,7 @@ export interface TaskDateError {
 }
 
 export class TaskAggregateError extends AggregateError {
-	constructor(errors: TaskDateError[], message?: string) {
+	public constructor(errors: TaskDateError[], message?: string) {
 		super(errors, message);
 		this.name = 'TaskAggregateError';
 		Error.captureStackTrace(this, this.constructor);

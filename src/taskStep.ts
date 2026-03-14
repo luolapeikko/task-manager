@@ -1,12 +1,11 @@
-import * as EventEmitter from 'events';
-import TypedEmitter from 'typed-emitter';
+import {EventEmitter} from 'events';
 import {TaskStepError} from './error';
 
 export type TaskStepStatus = 'init' | 'pending' | 'running' | 'rollback' | 'success' | 'failure';
 
 type TaskStepEvents<T = unknown> = {
-	status: (self: TaskStep<string, any>) => void;
-	action: (self: TaskStep<string, any>, data: T) => void;
+	status: [self: TaskStep<string, any>];
+	action: [self: TaskStep<string, any>, data: T];
 };
 
 export type InitialTaskStepProps<K, P> = P & {
@@ -27,17 +26,16 @@ export type TaskStepOptions = {
 export type TaskStepToJson<K extends string, P> = TaskStep<K, P>['props'] & {key: K};
 export type TaskStepAsJson<T extends AnyTaskStep> = ReturnType<T['toJSON']>;
 
-
 export type AnyTaskStep = TaskStep<string, any, any>;
 
-export abstract class TaskStep<K extends string, P, T = unknown> extends (EventEmitter as new () => TypedEmitter<TaskStepEvents>) {
+export abstract class TaskStep<K extends string, P, T = unknown> extends EventEmitter<TaskStepEvents> {
 	private waitPromise: Promise<T | undefined> | undefined;
 	private waitResolve: ((value: T | undefined | PromiseLike<T | undefined>) => void) | undefined;
 	private waitReject: ((reason?: any) => void) | undefined;
-	private isResolved: boolean = false;
+	private isResolved = false;
 	private data: T | undefined;
 	protected readonly props: TaskStepProps<P>;
-	constructor({key, ...props}: InitialTaskStepProps<K, P>) {
+	public constructor({key, ...props}: InitialTaskStepProps<K, P>) {
 		super();
 		this.props = {status: 'init', ...props} as TaskStepProps<P>;
 	}
@@ -51,7 +49,7 @@ export abstract class TaskStep<K extends string, P, T = unknown> extends (EventE
 			if (preStatus === 'success') {
 				this.status('success');
 				this.waitResolve?.(this.data);
-				return this.data!;
+				return this.data as T;
 			}
 		} catch (err) {
 			this.status('failure');
@@ -104,7 +102,7 @@ export abstract class TaskStep<K extends string, P, T = unknown> extends (EventE
 				this.waitResolve = resolve;
 				this.waitReject = reject;
 				if (this.isResolved) {
-					this.waitResolve(this.data!);
+					this.waitResolve(this.data);
 				}
 			});
 		}

@@ -1,13 +1,12 @@
-import * as EventEmitter from 'events';
-import TypedEmitter from 'typed-emitter';
-import {AnyTaskStep, TaskStepAsJson, TaskStepToJson} from './taskStep';
+import {EventEmitter} from 'events';
 import {v4 as uuidV4} from 'uuid';
-import {getError, TaskAggregateError, TaskDateError, TaskError} from './error';
-import {AnyTaskStepGroup, TaskStepGroup} from './taskStepGroup';
+import {getError, TaskAggregateError, type TaskDateError, TaskError} from './error';
+import type {AnyTaskStep, TaskStepAsJson, TaskStepToJson} from './taskStep';
+import {type AnyTaskStepGroup, TaskStepGroup} from './taskStepGroup';
 
 type TaskEvents = {
-	stepStatus: (self: AnyTaskStep) => void;
-	stepAction: (self: AnyTaskStep, data: unknown) => void;
+	stepStatus: [self: AnyTaskStep];
+	stepAction: [self: AnyTaskStep, data: unknown];
 };
 
 interface InitialTaskProps<T extends string, TS = AnyTaskStep | AnyTaskStepGroup> {
@@ -34,10 +33,10 @@ function isTaskProps<T extends string>(props: any): props is TaskProps<T> {
 
 export type AnyTask = Task<string, AnyTaskStep>;
 
-export abstract class Task<T extends string, TS extends AnyTaskStep, TSJ = TaskStepAsJson<TS>> extends (EventEmitter as new () => TypedEmitter<TaskEvents>) {
+export abstract class Task<T extends string, TS extends AnyTaskStep, TSJ = TaskStepAsJson<TS>> extends EventEmitter<TaskEvents> {
 	public readonly uuid: string;
 	protected readonly props: TaskProps<T>;
-	constructor(props: InitialTaskProps<T>) {
+	public constructor(props: InitialTaskProps<T>) {
 		super();
 		if (isTaskProps(props)) {
 			this.props = props;
@@ -52,9 +51,10 @@ export abstract class Task<T extends string, TS extends AnyTaskStep, TSJ = TaskS
 		});
 	}
 	public async start(): Promise<void> {
-		this.buildStepList()
-			.filter((step) => step.status() === 'init')
-			.forEach((step) => step.status('pending'));
+		// set all init steps to pending
+		for (const step of this.buildStepList().filter((step) => step.status() === 'init')) {
+			step.status('pending');
+		}
 		const errorList: TaskDateError[] = [];
 		for (const step of this.buildStepList().filter((cs) => {
 			const status = cs.status();
@@ -110,6 +110,13 @@ export abstract class Task<T extends string, TS extends AnyTaskStep, TSJ = TaskS
 		};
 	}
 	private buildStepList(): AnyTaskStep[] {
-		return this.props.steps.reduce<AnyTaskStep[]>((acc, step) => (step instanceof TaskStepGroup ? [...acc, ...step.props.steps] : [...acc, step]), []);
+		return this.props.steps.reduce<AnyTaskStep[]>((acc, step) => {
+			if (step instanceof TaskStepGroup) {
+				acc.push(...step.props.steps);
+			} else {
+				acc.push(step);
+			}
+			return acc;
+		}, []);
 	}
 }

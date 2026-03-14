@@ -1,10 +1,10 @@
 import {TaskError} from './error';
-import {AnyTask, TaskPropsJson} from './task';
+import type {AnyTask, TaskPropsJson} from './task';
 
 export class TaskManager {
 	private tasks: Record<string, AnyTask> = {};
 	public import(tasks: AnyTask[]) {
-		this.tasks = tasks.reduce((acc, task) => {
+		this.tasks = tasks.reduce<Record<string, AnyTask>>((acc, task) => {
 			acc[task.uuid] = task;
 			return acc;
 		}, {});
